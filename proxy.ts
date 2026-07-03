@@ -24,23 +24,23 @@ export async function proxy(request: NextRequest) {
   )
 
   // Refreshes the session if it's expired — required for Server Components
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser()
 
-  const isDashboardRoute = request.nextUrl.pathname.startsWith("/dashboard")
-  const isAuthRoute =
-    request.nextUrl.pathname.startsWith("/auth/login") ||
-    request.nextUrl.pathname.startsWith("/auth/sign-up")
+  // const isDashboardRoute = request.nextUrl.pathname.startsWith("/dashboard")
+  // const isAuthRoute =
+  //   request.nextUrl.pathname.startsWith("/auth/login") ||
+  //   request.nextUrl.pathname.startsWith("/auth/sign-up")
 
-  if (!user && isDashboardRoute) {
-    const redirectUrl = new URL("/auth/login", request.url)
-    return NextResponse.redirect(redirectUrl)
-  }
+  // if (!user && isDashboardRoute) {
+  //   const redirectUrl = new URL("/auth/login", request.url)
+  //   return NextResponse.redirect(redirectUrl)
+  // }
 
-  if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", request.url))
-  }
+  // if (user && isAuthRoute) {
+  //   return NextResponse.redirect(new URL("/dashboard", request.url))
+  // }
 
   return response
 }
