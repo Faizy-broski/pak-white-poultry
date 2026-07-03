@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname } from "next/navigation"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -14,15 +15,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import {
-  LayoutDashboardIcon,
-  ClipboardListIcon,
-  UsersIcon,
-  TruckIcon,
-  PackageIcon,
-  BarChart3Icon,
-  Settings2Icon,
-} from "lucide-react"
+import { LayoutDashboardIcon, ClipboardListIcon, UsersIcon, LayersIcon } from "lucide-react"
 
 function EggIcon({ className }: { className?: string }) {
   return (
@@ -32,84 +25,42 @@ function EggIcon({ className }: { className?: string }) {
   )
 }
 
-// Pak White Poultry admin navigation
-const data = {
-  user: {
-    name: "Admin",
-    email: "admin@pakwhitepoultry.pk",
-    avatar: "/avatars/admin.jpg",
-  },
-  navMain: [
+const user = {
+  name: "Admin",
+  email: "admin@pakwhitepoultry.pk",
+  avatar: "/avatars/admin.jpg",
+}
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname()
+
+  const navMain = [
     {
       title: "Dashboard",
       url: "/dashboard",
       icon: <LayoutDashboardIcon />,
-      isActive: true,
-      items: [
-        { title: "Overview", url: "/dashboard" },
-        { title: "Analytics", url: "/dashboard/analytics" },
-      ],
+      isActive: pathname === "/dashboard",
     },
     {
       title: "Orders",
       url: "/dashboard/orders",
       icon: <ClipboardListIcon />,
-      items: [
-        { title: "All Orders", url: "/dashboard/orders" },
-        { title: "Pending", url: "/dashboard/orders?status=pending" },
-        { title: "Delivered", url: "/dashboard/orders?status=delivered" },
-      ],
+      isActive: pathname?.startsWith("/dashboard/orders"),
     },
     {
       title: "Customers",
       url: "/dashboard/customers",
       icon: <UsersIcon />,
-      items: [
-        { title: "All Customers", url: "/dashboard/customers" },
-        { title: "New Signups", url: "/dashboard/customers?filter=new" },
-      ],
+      isActive: pathname?.startsWith("/dashboard/customers"),
     },
     {
-      title: "Delivery",
-      url: "/dashboard/delivery",
-      icon: <TruckIcon />,
-      items: [
-        { title: "Routes", url: "/dashboard/delivery/routes" },
-        { title: "Riders", url: "/dashboard/delivery/riders" },
-      ],
+      title: "Plans",
+      url: "/dashboard/plans",
+      icon: <LayersIcon />,
+      isActive: pathname?.startsWith("/dashboard/plans"),
     },
-    {
-      title: "Inventory",
-      url: "/dashboard/inventory",
-      icon: <PackageIcon />,
-      items: [
-        { title: "Egg Stock", url: "/dashboard/inventory" },
-        { title: "Farms", url: "/dashboard/inventory/farms" },
-      ],
-    },
-    {
-      title: "Reports",
-      url: "/dashboard/reports",
-      icon: <BarChart3Icon />,
-      items: [
-        { title: "Sales", url: "/dashboard/reports/sales" },
-        { title: "Deliveries", url: "/dashboard/reports/deliveries" },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "/dashboard/settings",
-      icon: <Settings2Icon />,
-      items: [
-        { title: "General", url: "/dashboard/settings" },
-        { title: "Pricing", url: "/dashboard/settings/pricing" },
-        { title: "Team", url: "/dashboard/settings/team" },
-      ],
-    },
-  ],
-}
+  ]
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -132,10 +83,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

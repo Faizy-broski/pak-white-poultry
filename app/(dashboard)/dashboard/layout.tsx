@@ -44,18 +44,8 @@ export default function DashboardLayout({
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" aria-label="Notifications">
-              <BellIcon className="size-4" />
-            </Button>
-            <Button size="sm" className="gap-1.5">
-              <PlusIcon className="size-4" />
-              New Order
-            </Button>
-          </div>
         </header>
-        <div className="flex flex-1 flex-col bg-secondary/30">{children}</div>
+        <div className="flex flex-1 flex-col bg-secondary/30 p-10">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   )
