@@ -1,41 +1,23 @@
 "use client"
 
-import { useEffect, useState, type FormEvent, Suspense } from "react"
+import { useState, type FormEvent } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
 import { CheckCircle2Icon } from "lucide-react"
 
 import { AuthShell } from "@/components/auth/auth-shell"
 import { PasswordInput } from "@/components/auth/password-input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { createClient } from "@/lib/supabase/client"
 
-type ExchangeState = "checking" | "ready" | "invalid"
-
-function ResetPasswordForm() {
-  const searchParams = useSearchParams()
-  const code = searchParams.get("code")
-  const router = useRouter()
-
-  const [exchangeState, setExchangeState] = useState<ExchangeState>("checking")
+// By the time someone lands here, /auth/confirm has already verified their
+// emailed link server-side and set a real session cookie — so this page
+// just needs the new-password form, no token handling of its own.
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!code) {
-      setExchangeState("invalid")
-      return
-    }
-
-    const supabase = createClient()
-    supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
-      setExchangeState(exchangeError ? "invalid" : "ready")
-    })
-  }, [code])
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -60,7 +42,7 @@ function ResetPasswordForm() {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong. Try again.")
+        setError(data.error ?? "This link may have expired — request a new one.")
         return
       }
 
@@ -82,22 +64,18 @@ function ResetPasswordForm() {
           <p className="text-sm leading-6 text-muted-foreground">
             Your password has been updated. You can now log in with your new password.
           </p>
-          <Button size="sm" onClick={() => router.push("/auth/login")}>Back to login</Button>
+          <Link href="/auth/login">
+            <Button size="sm">Back to login</Button>
+          </Link>
         </div>
       </AuthShell>
     )
   }
 
-  const linkInvalid = exchangeState === "invalid"
-
   return (
     <AuthShell
       title="Set a new password"
-      description={
-        linkInvalid
-          ? "This reset link has expired or is invalid — request a new one from the forgot password page."
-          : "Choose a new password for your account."
-      }
+      description="Choose a new password for your account."
       footer={
         <Link href="/auth/login" className="font-medium text-primary hover:underline">
           Back to login
@@ -113,7 +91,6 @@ function ResetPasswordForm() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={exchangeState !== "ready"}
           />
         </div>
 
@@ -125,28 +102,15 @@ function ResetPasswordForm() {
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            disabled={exchangeState !== "ready"}
           />
         </div>
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <Button type="submit" className="w-full" disabled={loading || exchangeState !== "ready"}>
-          {exchangeState === "checking"
-            ? "Verifying link…"
-            : loading
-              ? "Resetting…"
-              : "Reset password"}
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Resetting…" : "Reset password"}
         </Button>
       </form>
     </AuthShell>
-  )
-}
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense fallback={null}>
-      <ResetPasswordForm />
-    </Suspense>
   )
 }

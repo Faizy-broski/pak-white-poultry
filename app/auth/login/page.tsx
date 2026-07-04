@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useState, useEffect, type FormEvent, Suspense } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { AuthShell } from "@/components/auth/auth-shell"
 import { PasswordInput } from "@/components/auth/password-input"
@@ -11,13 +11,24 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
-export default function LoginPage() {
+const LINK_ERROR_MESSAGES: Record<string, string> = {
+  "invalid-link": "That link looks broken. Try requesting a new one.",
+  "expired-link": "That link has expired. Request a new one to continue.",
+}
+
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [remember, setRemember] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const linkError = searchParams.get("error")
+    if (linkError) setError(LINK_ERROR_MESSAGES[linkError] ?? "That link didn't work. Try again.")
+  }, [searchParams])
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -108,5 +119,13 @@ export default function LoginPage() {
         </Button>
       </form>
     </AuthShell>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   )
 }

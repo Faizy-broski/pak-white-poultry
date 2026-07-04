@@ -14,12 +14,14 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createClient()
+  const origin = request.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { full_name: fullName, phone },
+      emailRedirectTo: `${origin}/auth/login`,
       // The trigger public.handle_new_user() creates the profiles row automatically.
     },
   })
